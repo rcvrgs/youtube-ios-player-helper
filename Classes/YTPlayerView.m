@@ -863,7 +863,8 @@ decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
       [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
   NSString *embedHTML = [NSString stringWithFormat:embedHTMLTemplate, playerVarsJsonString];
-  [self.webView loadHTMLString:embedHTML baseURL: self.originURL];
+  NSString *headerString = @"<header><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no'></header>";
+  [self.webView loadHTMLString:[headerString stringByAppendingString:embedHTML] baseURL: self.originURL];
   self.webView.navigationDelegate = self;
   
   if ([self.delegate respondsToSelector:@selector(playerViewPreferredInitialLoadingView:)]) {
