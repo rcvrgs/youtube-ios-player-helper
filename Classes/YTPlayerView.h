@@ -57,6 +57,7 @@ typedef void (^YTIntCompletionHandler)(int result, NSError *_Nullable error);
 typedef void (^YTFloatCompletionHandler)(float result, NSError *_Nullable error);
 typedef void (^YTDoubleCompletionHandler)(double result, NSError *_Nullable error);
 typedef void (^YTStringCompletionHandler)(NSString *_Nullable result, NSError *_Nullable error);
+typedef void (^YTNumberCompletionHandler)(NSNumber *_Nullable result, NSError *_Nullable error);
 typedef void (^YTArrayCompletionHandler)(NSArray *_Nullable result, NSError *_Nullable error);
 typedef void (^YTURLCompletionHandler)(NSURL *_Nullable result, NSError *_Nullable error);
 typedef void (^YTPlayerStateCompletionHandler)(YTPlayerState result, NSError *_Nullable error);

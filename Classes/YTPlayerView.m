@@ -63,6 +63,8 @@ NSString static *const kYTPlayerStaticProxyRegexPattern = @"^https://content.goo
 NSString static *const kYTPlayerSyndicationRegexPattern = @"^https://tpc.googlesyndication.com/sodar/(.*).html$";
 
 NSErrorDomain static const kYTNoStringErrorDomain = @"NoStringErrorDomain";
+NSErrorDomain static const kYTNoNumberErrorDomain = @"NoNumberErrorDomain";
+NSErrorDomain static const kYTNoArrayErrorDomain = @"NoArrayErrorDomain";
 
 @interface YTPlayerView() <WKNavigationDelegate>
 
@@ -240,8 +242,8 @@ NSErrorDomain static const kYTNoStringErrorDomain = @"NoStringErrorDomain";
 #pragma mark - Setting the playback rate
 
 - (void)playbackRate:(_Nullable YTFloatCompletionHandler)completionHandler {
-  [self stringFromEvaluatingJavaScript:@"player.getPlaybackRate();"
-                     completionHandler:^(NSString *_Nullable result, NSError *_Nullable error) {
+  [self numberFromEvaluatingJavaScript:@"player.getPlaybackRate();"
+                     completionHandler:^(NSNumber *_Nullable result, NSError *_Nullable error) {
     if (!completionHandler) {
       return;
     }
@@ -259,8 +261,8 @@ NSErrorDomain static const kYTNoStringErrorDomain = @"NoStringErrorDomain";
 }
 
 - (void)availablePlaybackRates:(_Nullable YTArrayCompletionHandler)completionHandler {
-  [self stringFromEvaluatingJavaScript:@"player.getAvailablePlaybackRates();"
-                     completionHandler:^(NSString *_Nullable result, NSError * _Nullable error) {
+  [self arrayFromEvaluatingJavaScript:@"player.getAvailablePlaybackRates();"
+                     completionHandler:^(NSArray *_Nullable result, NSError * _Nullable error) {
     if (!completionHandler) {
       return;
     }
@@ -268,16 +270,7 @@ NSErrorDomain static const kYTNoStringErrorDomain = @"NoStringErrorDomain";
       completionHandler(nil, error);
       return;
     }
-    NSData *playbackRateData = [result dataUsingEncoding:NSUTF8StringEncoding];
-    NSError *jsonDeserializationError;
-    NSArray *playbackRates = [NSJSONSerialization JSONObjectWithData:playbackRateData
-                                                             options:kNilOptions
-                                                               error:&jsonDeserializationError];
-    if (jsonDeserializationError) {
-      completionHandler(nil, jsonDeserializationError);
-      return;
-    }
-    completionHandler(playbackRates, nil);
+    completionHandler(result, nil);
   }];
 }
 
@@ -298,8 +291,8 @@ NSErrorDomain static const kYTNoStringErrorDomain = @"NoStringErrorDomain";
 #pragma mark - Playback status
 
 - (void)videoLoadedFraction:(_Nullable YTFloatCompletionHandler)completionHandler {
-  [self stringFromEvaluatingJavaScript:@"player.getVideoLoadedFraction();"
-                     completionHandler:^(NSString *_Nullable result, NSError *_Nullable error) {
+  [self numberFromEvaluatingJavaScript:@"player.getVideoLoadedFraction();"
+                     completionHandler:^(NSNumber *_Nullable result, NSError *_Nullable error) {
     if (!completionHandler) {
       return;
     }
@@ -314,8 +307,8 @@ NSErrorDomain static const kYTNoStringErrorDomain = @"NoStringErrorDomain";
 }
 
 - (void)playerState:(_Nullable YTPlayerStateCompletionHandler)completionHandler {
-  [self stringFromEvaluatingJavaScript:@"player.getPlayerState();"
-                     completionHandler:^(NSString *_Nullable result, NSError *_Nullable error) {
+  [self numberFromEvaluatingJavaScript:@"player.getPlayerState();"
+                     completionHandler:^(NSNumber *_Nullable result, NSError *_Nullable error) {
     if (!completionHandler) {
       return;
     }
@@ -323,13 +316,14 @@ NSErrorDomain static const kYTNoStringErrorDomain = @"NoStringErrorDomain";
       completionHandler(kYTPlayerStateUnknown, error);
       return;
     }
-    completionHandler([YTPlayerView playerStateForString:result], nil);
+    YTPlayerState state = [result integerValue];
+    completionHandler(state, nil);
   }];
 }
 
 - (void)currentTime:(_Nullable YTFloatCompletionHandler)completionHandler {
-  [self stringFromEvaluatingJavaScript:@"player.getCurrentTime();"
-                     completionHandler:^(NSString *_Nullable result, NSError *_Nullable error) {
+  [self numberFromEvaluatingJavaScript:@"player.getCurrentTime();"
+                     completionHandler:^(NSNumber *_Nullable result, NSError *_Nullable error) {
     if (!completionHandler) {
       return;
     }
@@ -344,8 +338,8 @@ NSErrorDomain static const kYTNoStringErrorDomain = @"NoStringErrorDomain";
 #pragma mark - Video information methods
 
 - (void)duration:(_Nullable YTDoubleCompletionHandler)completionHandler {
-  [self stringFromEvaluatingJavaScript:@"player.getDuration();"
-                     completionHandler:^(NSString *_Nullable result, NSError *_Nullable error) {
+  [self numberFromEvaluatingJavaScript:@"player.getDuration();"
+                     completionHandler:^(NSNumber *_Nullable result, NSError *_Nullable error) {
     if (!completionHandler) {
       return;
     }
@@ -388,30 +382,21 @@ NSErrorDomain static const kYTNoStringErrorDomain = @"NoStringErrorDomain";
 #pragma mark - Playlist methods
 
 - (void)playlist:(_Nullable YTArrayCompletionHandler)completionHandler {
-  [self stringFromEvaluatingJavaScript:@"player.getPlaylist();"
-                     completionHandler:^(NSString *_Nullable result, NSError *_Nullable error) {
+  [self arrayFromEvaluatingJavaScript:@"player.getPlaylist();"
+                     completionHandler:^(NSArray *_Nullable result, NSError *_Nullable error) {
     if (!completionHandler) {
       return;
     }
     if (error) {
       completionHandler(nil, error);
     }
-    NSData *playlistData = [result dataUsingEncoding:NSUTF8StringEncoding];
-    NSError *jsonDeserializationError;
-    NSArray *videoIds = [NSJSONSerialization JSONObjectWithData:playlistData
-                                                        options:kNilOptions
-                                                          error:&jsonDeserializationError];
-    if (jsonDeserializationError) {
-      completionHandler(nil, jsonDeserializationError);
-      return;
-    }
-    completionHandler(videoIds, nil);
+    completionHandler(result, nil);
   }];
 }
 
 - (void)playlistIndex:(_Nullable YTIntCompletionHandler)completionHandler {
-  [self stringFromEvaluatingJavaScript:@"player.getPlaylistIndex();"
-                     completionHandler:^(NSString *_Nullable result, NSError *_Nullable error) {
+  [self numberFromEvaluatingJavaScript:@"player.getPlaylistIndex();"
+                     completionHandler:^(NSNumber *_Nullable result, NSError *_Nullable error) {
     if (!completionHandler) {
       return;
     }
@@ -862,6 +847,76 @@ decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     }
 
     completionHandler((NSString *)result, nil);
+  }];
+}
+
+/**
+ * Private method for evaluating JavaScript in the webview.
+ *
+ * @param jsToExecute The JavaScript code in string format that we want to execute.
+ * @param completionHandler A block to invoke when script evaluation completes or fails.
+ */
+- (void)numberFromEvaluatingJavaScript:(NSString *)jsToExecute
+                     completionHandler:(_Nullable YTNumberCompletionHandler)completionHandler {
+  [_webView evaluateJavaScript:jsToExecute
+             completionHandler:^(id _Nullable result, NSError *_Nullable error) {
+    if (!completionHandler) {
+      return;
+    }
+
+    if (error) {
+      completionHandler(nil, error);
+      return;
+    }
+    if (![result isKindOfClass:[NSNumber class]]) {
+      NSDictionary *errorUserInfo = @{
+        NSLocalizedDescriptionKey: @"The returned JS result is an unsupported object.",
+      };
+      NSError *error = [[NSError alloc] initWithDomain:kYTNoNumberErrorDomain code:100
+                                              userInfo:errorUserInfo];
+      completionHandler(nil, error);
+      return;
+    }
+
+    completionHandler((NSNumber *)result, nil);
+  }];
+}
+
+/**
+ * Private method for evaluating JavaScript in the webview.
+ *
+ * @param jsToExecute The JavaScript code in string format that we want to execute.
+ * @param completionHandler A block to invoke when script evaluation completes or fails.
+ */
+- (void)arrayFromEvaluatingJavaScript:(NSString *)jsToExecute
+                     completionHandler:(_Nullable YTArrayCompletionHandler)completionHandler {
+  [_webView evaluateJavaScript:jsToExecute
+             completionHandler:^(id _Nullable result, NSError *_Nullable error) {
+    if (!completionHandler) {
+      return;
+    }
+
+    if (error) {
+      completionHandler(nil, error);
+      return;
+    }
+    
+    if ([result isKindOfClass:[NSNull class]]) {
+        completionHandler(nil, nil);
+        return;
+    }
+      
+    if (![result isKindOfClass:[NSArray class]]) {
+      NSDictionary *errorUserInfo = @{
+        NSLocalizedDescriptionKey: @"The returned JS result is an unsupported object.",
+      };
+      NSError *error = [[NSError alloc] initWithDomain:kYTNoArrayErrorDomain code:100
+                                              userInfo:errorUserInfo];
+      completionHandler(nil, error);
+      return;
+    }
+
+    completionHandler((NSArray *)result, nil);
   }];
 }
 
