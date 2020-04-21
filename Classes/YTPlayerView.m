@@ -761,7 +761,6 @@ decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
  *                     video IDs to play with the playlist player.
  * @param index 0-index position of video to start playback on.
  * @param startSeconds Seconds after start of video to begin playback.
- * @return The result of cueing the playlist.
  */
 - (void)cuePlaylist:(NSString *)cueingString
                index:(int)index
@@ -781,7 +780,6 @@ decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
  *                     video IDs to play with the playlist player.
  * @param index 0-index position of video to start playback on.
  * @param startSeconds Seconds after start of video to begin playback.
- * @return The result of cueing the playlist.
  */
 - (void)loadPlaylist:(NSString *)cueingString
                index:(int)index
