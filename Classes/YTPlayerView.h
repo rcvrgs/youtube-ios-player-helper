@@ -19,13 +19,13 @@
 
 /** These enums represent the state of the current video in the player. */
 typedef NS_ENUM(NSInteger, YTPlayerState) {
-    kYTPlayerStateUnstarted,
-    kYTPlayerStateEnded,
-    kYTPlayerStatePlaying,
-    kYTPlayerStatePaused,
-    kYTPlayerStateBuffering,
-    kYTPlayerStateCued,
-    kYTPlayerStateUnknown
+    kYTPlayerStateUnstarted = -1,
+    kYTPlayerStateEnded     =  0,
+    kYTPlayerStatePlaying   =  1,
+    kYTPlayerStatePaused    =  2,
+    kYTPlayerStateBuffering =  3,
+    kYTPlayerStateCued      =  4,
+    kYTPlayerStateUnknown   =  5
 };
 
 /** These enums represent the resolution of the currently loaded video. */
